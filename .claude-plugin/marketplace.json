@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "webflow-to-astro",
+  "description": "A Claude Code skill for moving a Webflow site to Astro + Tailwind on Cloudflare Pages.",
+  "owner": { "name": "Adam Perlis" },
+  "plugins": [
+    {
+      "name": "webflow-to-astro",
+      "description": "Move a Webflow site to Astro + Tailwind on Cloudflare Pages, page for page: same URLs and head tags, with forms, CMS, redirects, DNS and email moved too.",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/adamperlis/claude-skill-webflow-to-astro"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Cloudflare Pages headers.
+# Hashed build output never changes, so it can be cached for a year.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Videos, images and share cards keep stable names; cache for a month.
+/videos/*
+  Cache-Control: public, max-age=2592000
+/images/*
+  Cache-Control: public, max-age=2592000
+/og/*
+  Cache-Control: public, max-age=2592000
+
+# Every page: no MIME sniffing, a referrer that stops at the origin when it
+# leaves the site, no framing by other sites, its own browsing context (no
+# window opened from another site can reach it), HTTPS remembered for a year (on
+# this host only: add includeSubDomains only if every subdomain is HTTPS), and no camera, microphone, location or payment access.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()

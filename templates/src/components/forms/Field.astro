@@ -1,0 +1,29 @@
+---
+// One labelled field of a form: the mono label over a filled, rounded input.
+// Names are the Webflow form's, so entries match its old exports.
+interface Props {
+	label: string;
+	name: string;
+	type?: 'text' | 'email' | 'url' | 'textarea' | 'select';
+	placeholder?: string;
+	maxlength?: number;
+	options?: { value: string; label: string }[];
+}
+const { label, name, type = 'text', placeholder, maxlength = 256, options = [] } = Astro.props;
+const id = `field-${name.toLowerCase()}`;
+const look =
+	'block w-full rounded-[8px] border border-rule bg-rule px-4 font-sans text-[12px] font-medium text-ink placeholder:text-ink/48 transition-colors outline-none focus:border-ink/32 focus:bg-paper';
+---
+
+<div class="flex flex-col gap-3">
+	<label for={id} class="label text-ink">{label}</label>
+	{type === 'textarea' && <textarea id={id} name={name} placeholder={placeholder} maxlength={maxlength} required class:list={[look, 'min-h-[120px] py-4']} />}
+	{
+		type === 'select' && (
+			<select id={id} name={name} required class:list={[look, 'h-14 appearance-none bg-[url(/images/chevron.svg)] bg-[right_16px_center] bg-no-repeat pr-10']}>
+				{options.map((o) => <option value={o.value}>{o.label}</option>)}
+			</select>
+		)
+	}
+	{type !== 'textarea' && type !== 'select' && <input id={id} name={name} type={type} placeholder={placeholder} maxlength={maxlength} required class:list={[look, 'h-14']} />}
+</div>

@@ -1,0 +1,20 @@
+{
+	// Static site on Cloudflare Pages (project "PROJECT"), served at
+	// the live domain (and PROJECT.pages.dev). `astro build` writes ./dist; Pages
+	// picks up dist/_headers, dist/_redirects and dist/404.html on its own, and
+	// functions/ for the forms.
+	//
+	// Deploy with `npm run deploy`. Wrangler 4.15x tries to route Pages
+	// commands through the newer Workers-based Pages, which would put the site
+	// on the account's shared workers.dev subdomain; --force keeps it on
+	// classic Pages and its own pages.dev address. Never deploy it as a Worker.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "PROJECT",
+	"compatibility_date": "2026-10-15",
+	"pages_build_output_dir": "./dist",
+	// Form entries (functions/api/forms.ts). Read them with `npm run inbox`.
+	"kv_namespaces": [{ "binding": "FORMS", "id": "KV_NAMESPACE_ID  (npx wrangler kv namespace create PROJECT-forms)" }],
+	// …and each one emailed to the owner by the mailer Worker (workers/forms-mail,
+	// through Cloudflare Email Routing)
+	"services": [{ "binding": "MAILER", "service": "PROJECT-forms-mail" }]
+}

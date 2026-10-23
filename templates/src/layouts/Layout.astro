@@ -1,0 +1,92 @@
+---
+// Every page's head, carrying over what the Webflow page had: title,
+// description, OG and Twitter cards, canonical, favicons, Search Console
+// token, JSON-LD; then the analytics, on the live domain only; the shared
+// nav and footer; and motion.
+//
+// Fill the values from inventory.md / reference/live/<page>.html, and pass
+// each page's own values from the page.
+import '../styles/global.css';
+// import Nav from '../components/Nav.astro';
+// import Footer from '../components/Footer.astro';
+
+interface Props {
+	title: string;
+	description?: string;
+	/** the share card, from public/og/ (each page keeps the one it had) */
+	ogImage?: string;
+	/** schema.org JSON-LD, as the page had it (CDN URLs swapped for the site's own) */
+	jsonLd?: Record<string, unknown>;
+	noindex?: boolean;
+}
+
+const DESCRIPTION = 'The site-wide description from the Webflow pages that share it.';
+const { title, description = DESCRIPTION, ogImage = '/og/default.jpg', jsonLd, noindex = false } = Astro.props;
+
+// Webflow's canonicals: the bare domain for home, no trailing slash elsewhere.
+// With build.format 'file', home's pathname is /index, so strip that too.
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/(index)?$/, '');
+const canonical = new URL(path || '/', Astro.site).href.replace(/\/$/, '');
+const image = new URL(ogImage, Astro.site).href;
+// the live hostname, for gating analytics (local and pages.dev visits stay out)
+const LIVE_HOST = Astro.site!.hostname.replace(/^www\./, '');
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script is:inline>
+			// before first paint: reveals only run with JS and motion allowed
+			if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');
+			// failsafe: if the motion script hasn't checked in, show everything
+			setTimeout(function () {
+				if (!document.documentElement.classList.contains('motion-ready')) document.documentElement.classList.remove('motion');
+			}, 3000);
+		</script>
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={image} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={image} />
+		<meta property="og:type" content="website" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<!-- Search Console: the token the Webflow site carried, if any -->
+		<!-- <meta name="google-site-verification" content="TOKEN" /> -->
+		{noindex && <meta name="robots" content="noindex" />}
+		<link rel="icon" href="/favicon-32.png" type="image/png" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="canonical" href={canonical} />
+		{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd, null, 2)} />}
+
+		<!-- Analytics as the Webflow site had them, on the live domain only.
+		     Check each one actually fired on Webflow before carrying it over
+		     (consent left revoked, made-up SRI hashes and broken snippets are
+		     common), and say what you found. -->
+		<script is:inline define:vars={{ LIVE_HOST }}>
+			if (location.hostname === LIVE_HOST || location.hostname.endsWith('.' + LIVE_HOST)) {
+				// GA4, e.g.:
+				// window.dataLayer = window.dataLayer || [];
+				// window.gtag = function () { dataLayer.push(arguments); };
+				// gtag('js', new Date()); gtag('config', 'G-XXXXXXXXXX');
+				// var s = document.createElement('script'); s.async = true;
+				// s.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX'; document.head.appendChild(s);
+			}
+		</script>
+		<slot name="head" />
+	</head>
+	<body class="min-h-dvh bg-paper text-ink">
+		<!-- <Nav /> -->
+		<main>
+			<slot />
+		</main>
+		<!-- <Footer /> -->
+		<script>
+			import '../scripts/motion';
+		</script>
+	</body>
+</html>

@@ -1,0 +1,13 @@
+{
+	// The daily rebuild (index.ts). Deploy once, then set the hook:
+	//   npx wrangler deploy --config workers/rebuild-cron/wrangler.jsonc
+	//   npx wrangler secret put DEPLOY_HOOK_URL --config workers/rebuild-cron/wrangler.jsonc
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "PROJECT-rebuild",
+	"main": "index.ts",
+	"compatibility_date": "2026-10-15",
+	"workers_dev": false,
+	"preview_urls": false,
+	// daily, 11:00 UTC (7am in New York). Set it to just before the owner's working day
+	"triggers": { "crons": ["0 11 * * *"] }
+}

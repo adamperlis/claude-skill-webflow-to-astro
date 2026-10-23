@@ -1,0 +1,46 @@
+---
+// A muted, looping background video, filling its (positioned) parent, as
+// Webflow's background videos did: MP4 first (what every browser plays),
+// WebM second, the poster until it starts.
+// Lazy by default: it loads nothing until it's within a screen of the
+// viewport, then plays, and pauses again once it's well out of view. Pass
+// `eager` for a video at the top of the page. With reduced motion it stays
+// on its poster.
+interface Props {
+	src: string;
+	webm?: string;
+	poster?: string;
+	eager?: boolean;
+	class?: string;
+}
+const { src, webm, poster, eager = false, class: className } = Astro.props;
+---
+
+<video
+	class:list={['pointer-events-none absolute inset-0 size-full object-cover', className]}
+	muted
+	loop
+	playsinline
+	preload={eager ? 'auto' : 'none'}
+	poster={poster}
+	aria-hidden="true"
+	data-bg-video
+>
+	<source src={src} type="video/mp4" />
+	{webm && <source src={webm} type="video/webm" />}
+</video>
+
+<script>
+	const still = matchMedia('(prefers-reduced-motion: reduce)');
+	const near = new IntersectionObserver(
+		(entries) => {
+			for (const { target, isIntersecting } of entries) {
+				const video = target as HTMLVideoElement;
+				if (isIntersecting && !still.matches) video.play().catch(() => {});
+				else video.pause();
+			}
+		},
+		{ rootMargin: '100% 0px' },
+	);
+	document.querySelectorAll<HTMLVideoElement>('video[data-bg-video]').forEach((v) => near.observe(v));
+</script>

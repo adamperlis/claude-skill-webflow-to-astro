@@ -1,0 +1,31 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment variables — deny by default, allow only examples
+.env
+.env.*
+!.env.example
+!*.env.example
+
+# Cloudflare local secrets and state
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
+
+# macOS
+.DS_Store
+
+# the Webflow site as it was, fetched by mirror.py: its assets and
+# screenshots stay on disk; the pages' HTML is kept as the record
+reference/assets/*
+!reference/assets/manifest.json
+reference/shots/

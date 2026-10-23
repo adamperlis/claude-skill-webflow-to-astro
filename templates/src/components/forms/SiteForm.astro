@@ -1,0 +1,47 @@
+---
+// A form that posts to our own /api/forms (functions/api/forms.ts) instead of
+// Webflow's: the fields (slot), the submit pill, and Webflow's thank-you and
+// error panels. src/scripts/forms.ts does the sending.
+//   kind      which form, a key of FORMS in functions/api/forms.ts
+//   redirect  where to go once it's sent (else the thank-you panel shows)
+//   tool, toolDescription   WebMCP: lets an AI agent fill it in for someone
+interface Props {
+	kind: string;
+	submit: string;
+	redirect?: string;
+	tool?: string;
+	toolDescription?: string;
+}
+const { kind, submit, redirect, tool, toolDescription } = Astro.props;
+---
+
+<div>
+	<form
+		class="flex flex-col gap-6"
+		data-form={kind}
+		data-redirect={redirect}
+		{...(tool ? { toolname: tool, tooldescription: toolDescription } : {})}
+		novalidate={false}
+	>
+		<slot />
+		<input type="hidden" name="form" value={kind} />
+		<input type="hidden" name="t" value="" />
+		{tool && <input type="hidden" name="source_is_agent" id="source_is_agent" value="false" />}
+		<!-- a field people never see; bots fill it in -->
+		<div class="absolute -left-[9999px] size-px overflow-hidden" aria-hidden="true">
+			<label>Company <input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+		</div>
+		<button type="submit" class="label inline-flex h-10 w-fit cursor-pointer items-center rounded-full border border-rule bg-white px-4 text-ink transition-colors hover:bg-paper disabled:cursor-wait disabled:opacity-60" data-wait="Please wait...">{submit}</button>
+	</form>
+	<div class="bg-rule p-5 text-center" role="status" hidden data-done>
+		<slot name="done">
+			<p class="label">Thank you!</p>
+			<p class="mt-2 text-body font-normal">Your submission has been received!</p>
+		</slot>
+	</div>
+	<div class="mt-4 bg-red-600 p-2.5 text-body font-normal text-white" role="alert" hidden data-fail>Oops! Something went wrong while submitting the form.</div>
+</div>
+
+<script>
+	import '../../scripts/forms';
+</script>

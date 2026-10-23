@@ -1,0 +1,26 @@
+{
+	// The forms' mail (index.ts): a Worker with no address on the web of its
+	// own. workers.dev and preview URLs are off, and it has no routes; the
+	// site's forms function reaches it through a service binding. It is not
+	// the site: the site stays on Pages.
+	//
+	//   npx wrangler deploy --config workers/forms-mail/wrangler.jsonc
+	//   npx wrangler secret put FORMS_TO --config workers/forms-mail/wrangler.jsonc   # the owner's inbox
+	"$schema": "../../node_modules/wrangler/config-schema.json",
+	"name": "PROJECT-forms-mail",
+	"main": "index.ts",
+	"compatibility_date": "2026-10-15",
+	"workers_dev": false,
+	"preview_urls": false,
+	// Cloudflare Email Routing: free to an address verified in it
+	"send_email": [{ "name": "EMAIL" }],
+	"vars": {
+		// The sender has to be on a domain with Cloudflare Email Routing on. If the
+		// site's own domain gets its mail elsewhere (Google Workspace, Microsoft
+		// 365: check its MX), don't turn Routing on for the apex, which replaces
+		// that MX and SPF: turn it on for a subdomain only (forms.example.com) or
+		// send from another domain of the owner's whose Routing already runs.
+		"FROM_EMAIL": "forms@forms.example.com",
+		"FROM_NAME": "example.com"
+	}
+}

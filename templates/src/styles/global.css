@@ -1,0 +1,86 @@
+@import "tailwindcss";
+/* fonts: self-host what the Webflow site used (Fontsource, or the owner's
+   licensed files in public/fonts with @font-face). Check which weights are
+   actually rendered (document.fonts on the live site); Webflow's WebFont
+   loader often requests weights a font doesn't have. */
+@import "@fontsource-variable/geist";
+@import "lenis/dist/lenis.css";
+
+/* Design tokens. Take them from the owner's design system if they have one;
+   otherwise from the Webflow CSS :root variables (--_colors---…,
+   --_text-style---h1--font-size, …) in reference/assets/css. Tailwind 4 turns
+   each into utilities (--color-ink → text-ink, --text-h1 → text-h1). */
+@theme {
+	--color-paper: #ffffff; /* the page */
+	--color-ink: #111111; /* text */
+	--color-muted: #6d6d6d;
+	--color-rule: #e6e6e6;
+
+	--font-sans: "Geist Variable", system-ui, sans-serif;
+
+	/* Webflow's heading scale, with its line-heights and tracking */
+	--text-h1: 120px;
+	--text-h1--line-height: 0.933;
+	--text-h1--letter-spacing: -8px;
+	--text-body: 16px;
+	--text-body--line-height: 1.5;
+
+	--container-main: 1440px;
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@layer base {
+	html,
+	body {
+		overflow-x: clip;
+	}
+	html {
+		background: var(--color-paper);
+		color: var(--color-ink);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+	}
+	/* Webflow sites often set a small base size (10px) on body. Keep it on
+	   body: on html it would make 1rem = 10px and shrink every Tailwind
+	   spacing and size to 62.5%. */
+	body {
+		font-size: 16px;
+		line-height: 1.5;
+	}
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+}
+
+@layer components {
+	/* the frame every section and the nav share, so content lines up with the
+	   nav at any width: max width, side padding (Webflow's .main-container) */
+	.wrap {
+		width: 100%;
+		max-width: var(--container-main);
+		margin-inline: auto;
+		padding-inline: 32px;
+	}
+	@media (width < 480px) {
+		.wrap {
+			padding-inline: 16px;
+		}
+	}
+}
+
+/* Scroll reveals (src/scripts/motion.ts), standing in for Webflow's "scroll
+   into view" interactions: with JS and motion allowed, [data-reveal] starts
+   lowered and transparent and eases in when it scrolls into view. Without JS
+   or with reduced motion everything is simply there. Don't put one on the
+   page's LCP heading. */
+html.motion [data-reveal]:not(.is-in) {
+	opacity: 0;
+	transform: translateY(24px);
+}
+html.motion [data-reveal] {
+	transition:
+		opacity 0.9s var(--ease-out-quart),
+		transform 0.9s var(--ease-out-quart);
+	transition-delay: calc(var(--reveal-delay, 0) * 1ms);
+}
