@@ -777,6 +777,19 @@ dropped and why, and the forms, CMS, analytics and DNS details. Their clicks:
 - **DMARC:** if the domain has none, Cloudflare's DMARC Management adds a
   `p=none` monitoring record, with reports to Cloudflare. It's a DNS change,
   so it's the owner's click.
+- **Tighten DMARC later.** `p=none` only reports. Once two to four weeks
+  of Cloudflare's DMARC reports show only the owner's own senders passing,
+  suggest `p=quarantine`, and later `reject`. It's the owner's click; put
+  the date to look again in `docs/move.md`.
+- **Retire senders that are gone.** List every `include:` in the apex SPF
+  and every DKIM selector (`dig TXT`). Ask the owner which services still
+  send mail as the domain: their mail host, a newsletter tool, a CRM,
+  Webflow's own form mail. Remove only the ones they confirm are gone.
+  - **Why it matters:** each dead include uses one of SPF's 10 DNS lookups.
+    An old account still allowed to send is also a way to spoof the
+    domain.
+  - **Never guess:** removing a sender that's still in use breaks that
+    service's mail.
 - **Webflow billing:** plans bill yearly.
   - **Site plans** downgrade at the end of the term.
   - **Unused months of a workspace plan:** ask support, through the chat
