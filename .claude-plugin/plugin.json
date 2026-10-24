@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "webflow-to-astro",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Move a Webflow site to Astro + Tailwind on Cloudflare Pages, page for page: same URLs and head tags, with forms, CMS, redirects, DNS and email moved too.",
   "author": { "name": "Adam Perlis" },
   "homepage": "https://github.com/adamperlis/claude-skill-webflow-to-astro",

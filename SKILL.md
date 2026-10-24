@@ -774,22 +774,40 @@ dropped and why, and the forms, CMS, analytics and DNS details. Their clicks:
     layout checks before loading the tag, along with Global Privacy
     Control.
   - **An Impressum** only if the owner runs the site from Germany. Ask.
-- **DMARC:** if the domain has none, Cloudflare's DMARC Management adds a
-  `p=none` monitoring record, with reports to Cloudflare. It's a DNS change,
-  so it's the owner's click.
-- **Tighten DMARC later.** `p=none` only reports. Once two to four weeks
-  of Cloudflare's DMARC reports show only the owner's own senders passing,
-  suggest `p=quarantine`, and later `reject`. It's the owner's click; put
-  the date to look again in `docs/move.md`.
-- **Retire senders that are gone.** List every `include:` in the apex SPF
-  and every DKIM selector (`dig TXT`). Ask the owner which services still
-  send mail as the domain: their mail host, a newsletter tool, a CRM,
-  Webflow's own form mail. Remove only the ones they confirm are gone.
-  - **Why it matters:** each dead include uses one of SPF's 10 DNS lookups.
-    An old account still allowed to send is also a way to spoof the
-    domain.
-  - **Never guess:** removing a sender that's still in use breaks that
-    service's mail.
+- **Offer the mail clean-up, and ask before each change.** These change
+  how the world trusts the domain's email, so none of them happens on its
+  own. Explain each one to the owner in plain words: what changes, what it
+  gets them, and that their own mailboxes aren't touched. Do it only on a
+  yes. Note any they decline in `docs/move.md`, so the next person doesn't
+  ask again.
+  - **Start DMARC reports** (if the domain has none): Cloudflare's DMARC
+    Management adds a `p=none` record. *"You'll see every service that
+    sends email as your domain, including anyone faking it. Nothing is
+    blocked yet."*
+  - **Send form emails from the site's own subdomain** (if they borrow
+    another domain): *"Your form emails will come from your own name, so
+    they look like you and are less likely to land in spam. Your inbox and
+    the way you send email don't change."*
+  - **Retire senders that are gone:** list every `include:` in the apex
+    SPF and every DKIM selector (`dig TXT`), say what each one is, and ask
+    which still send (their mail host, a newsletter tool, a CRM, Webflow's
+    own form mail). *"Fewer services allowed to send as you makes your
+    domain harder to fake, and keeps you under a 10-lookup limit that
+    makes email checks fail when it's crossed."* Remove only the ones they
+    confirm are gone. Never guess: removing one that's still in use breaks
+    that service's mail.
+    - **Some look unused but aren't.** `mailgun.org` is often a Ghost blog's
+      newsletters. Ghost(Pro) and self-hosted Ghost both send bulk email
+      through Mailgun, often from the apex address even when the blog is on
+      a subdomain. Others: `sendgrid.net`, `servers.mcsv.net` (Mailchimp),
+      `_spf.salesforce.com` and a help desk's include. If there's a blog,
+      a newsletter or a CRM anywhere on the domain, assume its sender is
+      live until the owner says otherwise.
+  - **Tighten DMARC** once two to four weeks of reports show only their own
+    senders passing: `p=quarantine`, and later `reject`. *"Email that
+    pretends to be you goes to spam instead of the inbox. Your own email
+    already passes, so it isn't affected."* If the reports aren't clean
+    yet, put the date to look again in `docs/move.md`.
 - **Webflow billing:** plans bill yearly.
   - **Site plans** downgrade at the end of the term.
   - **Unused months of a workspace plan:** ask support, through the chat

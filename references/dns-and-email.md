@@ -137,14 +137,16 @@ whose Email Routing is enabled. Check the domain's MX first:
 | none, or already `route*.mx.cloudflare.net` | Turn Email Routing on for the apex. Its MX + SPF + DKIM records are added and locked. |
 | Google Workspace (`*.google.com`), Microsoft 365, Fastmail, etc. | **Don't** turn it on for the apex: it replaces the MX and SPF and stops the owner's mail. Instead: **(a)** Email Routing on a subdomain only (API `POST /zones/{id}/email/routing/dns` `{"name":"forms.example.com"}`, or dashboard → Email Routing → Settings → Subdomains), which adds MX + SPF on that name and touches nothing else; send from `forms@forms.example.com`. Or **(b)** send from another domain of the owner's whose Routing already runs. |
 
-- **Prefer (a).** With (b), the form emails arrive from another of the
-  owner's brands. That's fine as a stopgap; move to the site's own
-  subdomain when there's time.
+- **Recommend (a), and ask.** With (b), the form emails arrive from another
+  of the owner's brands. Tell the owner the benefit of (a), that the emails
+  come from their own name and are less likely to land in spam, and that
+  their mailboxes aren't touched. Set it up only on a yes.
 - **DMARC:** a `p=quarantine`/`reject` DMARC on the apex still passes for a
   subdomain sender with relaxed alignment (the default).
-- **After the move:** tighten a `p=none` DMARC once its reports are
-  clean, and retire SPF includes and DKIM selectors for services that no
-  longer send. Both are SKILL.md's handback items and the owner's clicks.
+- **After the move:** offer to tighten a `p=none` DMARC once its reports
+  are clean, and to retire SPF includes and DKIM selectors for services
+  that no longer send. Explain the benefit and ask before each change (see
+  SKILL.md's handback items).
 - **Destination:** the owner's inbox must be a verified destination in the
   account (Email Routing → Destination addresses). Set it as the mailer's
   secret by piping it in, never printing it:
