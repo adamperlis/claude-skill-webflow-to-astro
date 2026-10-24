@@ -1,7 +1,8 @@
 // POST /api/forms: the site's forms, which Webflow used to take (and Zapier
 // used to forward). Each entry goes to KV, to the owner's inbox (the mailer
 // Worker), to Slack (SLACK_WEBHOOK_URL) and to the CRM (CRM_WEBHOOK_URL), each
-// only if configured; none of them can fail the form once it's stored. A Cloudflare Pages Function: each
+// only if configured; none of them can fail the form once it's stored, and if
+// KV refuses the write the email alone carries the entry. A Cloudflare Pages Function: each
 // entry is kept in KV (binding FORMS; read them with `npm run inbox`), then
 // emailed to the owner by the mailer Worker (workers/forms-mail, through Cloudflare
 // Email Routing), bound as MAILER. No address appears on the site or here.
@@ -111,13 +112,28 @@ export async function onRequestPost({ request, env, waitUntil }: Context) {
 		// set by the WebMCP script when an AI agent submitted the form for someone
 		agent: form.get('source_is_agent') === 'true' || undefined,
 	};
-	// keys sort oldest-first; the inbox script lists them newest-first
-	await env.FORMS.put(`${kind}:${at}:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(entry), {
-		metadata: { at, name: fields[spec.nameField] },
-	});
-	// and to the owner's inbox, after the reply: it's already kept, so mail that fails never fails the form
-	if (env.MAILER) waitUntil(env.MAILER.fetch('https://mail/', { method: 'POST', body: JSON.stringify(entry) }).catch(() => {}));
+	// keys sort oldest-first; the inbox script lists them newest-first. KV can
+	// refuse a write (an outage, or the free plan's 1,000 writes a day across
+	// the account, which one bulk import can use up), and then the email is
+	// the only copy: the form answers ok only once it has gone.
+	let kept = true;
+	try {
+		await env.FORMS.put(`${kind}:${at}:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(entry), {
+			metadata: { at, name: fields[spec.nameField] },
+		});
+	} catch (err) {
+		kept = false;
+		console.error('forms: KV write failed, relying on the email', String(err));
+	}
+	const mailed = env.MAILER
+		? env.MAILER.fetch('https://mail/', { method: 'POST', body: JSON.stringify(entry) }).then((r) => r.ok, () => false)
+		: Promise.resolve(false);
 	if (env.SLACK_WEBHOOK_URL) waitUntil(fetch(env.SLACK_WEBHOOK_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(slack(entry)) }).catch(() => {}));
 	if (env.CRM_WEBHOOK_URL) waitUntil(fetch(env.CRM_WEBHOOK_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(entry) }).catch(() => {}));
-	return json({ ok: true });
+	if (kept) {
+		// already kept, so mail that fails never fails the form
+		waitUntil(mailed);
+		return json({ ok: true });
+	}
+	return (await mailed) ? json({ ok: true }) : json({ ok: false, error: 'unavailable' }, 503);
 }

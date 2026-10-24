@@ -341,6 +341,15 @@ key and reCAPTCHA are verified by Webflow's servers). Use the templates:
   4. Load them with `npx wrangler kv bulk put <file> --namespace-id <FORMS
      id> --remote`. This bypasses the function, so nobody is emailed,
      Slacked or added to the CRM for an old entry.
+     **Mind the free plan's write limit.** Workers Free allows 1,000 KV
+     writes a day for the whole account, and each entry is one write. One
+     big import can use up the day, and then every form on the account
+     stops storing entries until 00:00 UTC. They still email, because the
+     form function falls back to email, but the inbox script misses them.
+     Above about 900 entries, ask the owner whether to spread the import
+     over several days (`kv … --per-file 900`, one file a day) or to move
+     to Workers Paid ($5 a month) first. Don't start the import until they
+     answer.
   5. Check the count per form against the map (`npx wrangler kv key list
      --prefix <kind>: …`), and read a few with `npm run inbox`.
   6. Run it again right before the domain switch to catch late

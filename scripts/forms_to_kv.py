@@ -4,7 +4,7 @@
     WEBFLOW_TOKEN=… python3 -I forms_to_kv.py export <site_id> <out.json>
     python3 -I forms_to_kv.py csv <out.json> <form name>=<webflow.csv> [...]
     python3 -I forms_to_kv.py map <out.json> <map.json>
-    python3 -I forms_to_kv.py kv <out.json> <map.json> <bulk-prefix>
+    python3 -I forms_to_kv.py kv <out.json> <map.json> <bulk-prefix> [--per-file N]
     npx wrangler kv bulk put <bulk-prefix>-1.json --namespace-id <FORMS id> --remote
 
 export  every form and every submission through the Data API v2 (a token with
@@ -24,6 +24,12 @@ kv      the entries in exactly the shape functions/api/forms.ts stores, as
         "source": "webflow". Loading them bypasses the function, so nothing is
         emailed, posted to Slack or sent to the CRM.
 
+Workers Free allows 1,000 KV writes a day for the whole account, and every
+imported entry is one. Going over makes every form on the account fail to
+store until 00:00 UTC. Above about 900 entries, use --per-file 900 and load
+one file a day, which leaves room for the live forms, or import on Workers
+Paid.
+
 Every file here holds people's details: the script refuses to write inside a
 git work tree, and prints counts, never contents. Delete the files once the
 import is checked.
@@ -40,6 +46,7 @@ from datetime import datetime, timezone
 
 API = 'https://api.webflow.com/v2'
 BULK_MAX = 10_000  # wrangler kv bulk put takes at most this many pairs per call
+FREE_DAILY_WRITES = 1_000  # Workers Free: KV writes a day, account-wide
 
 
 def outside_repo(path):
@@ -213,14 +220,21 @@ def main(argv):
             print(f"{name:<36} {m['submissions']:>5}  → {m['kind'] or 'skip'}  name={m['nameField']} email={m['emailField']}")
         print('Check each kind against FORMS in functions/api/forms.ts, then run kv.')
     else:
-        if len(argv) != 5:
+        per_file = BULK_MAX
+        if len(argv) == 7 and argv[5] == '--per-file' and argv[6].isdigit():
+            per_file = min(int(argv[6]), BULK_MAX)
+        elif len(argv) != 5:
             sys.exit(__doc__)
         pairs, counts, skipped = to_kv(json.load(open(argv[2])), json.load(open(argv[3])))
         prefix = outside_repo(argv[4] + '-1.json')[:-len('-1.json')]
-        for i in range(0, len(pairs), BULK_MAX):
-            path = f'{prefix}-{i // BULK_MAX + 1}.json'
-            json.dump(pairs[i:i + BULK_MAX], open(path, 'w'), ensure_ascii=False)
-            print(f'wrote {path}')
+        for i in range(0, len(pairs), per_file):
+            path = f'{prefix}-{i // per_file + 1}.json'
+            json.dump(pairs[i:i + per_file], open(path, 'w'), ensure_ascii=False)
+            print(f'wrote {path} ({len(pairs[i:i + per_file])} entries)')
+        if per_file > FREE_DAILY_WRITES - 100 and len(pairs) > FREE_DAILY_WRITES - 100:
+            print(f'NOTE: {len(pairs)} entries is more than a Workers Free account can write in a day '
+                  f'({FREE_DAILY_WRITES:,}, shared with the live forms). On the free plan, rerun with '
+                  '--per-file 900 and load one file a day.')
         for kind, n in sorted(counts.items()):
             print(f'{kind:<20} {n:>5} entries')
         for name, n in skipped.items():
