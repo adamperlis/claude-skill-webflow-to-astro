@@ -325,6 +325,30 @@ key and reCAPTCHA are verified by Webflow's servers). Use the templates:
 - **The client:** `forms.ts` posts with fetch and shows Webflow's thank-you
   and error panels, or follows `data-redirect`.
 - **Keep Webflow's field names,** so entries match old exports.
+- **Bring the old entries over.** Every past Webflow submission goes into
+  the same KV store, so `npm run inbox` shows the site's whole history, not
+  just what came in after the move. Use `scripts/forms_to_kv.py`:
+  1. `export` pulls every form and submission through the Data API (a
+     token with `forms:read`). Without a token, use `csv` with each form's
+     CSV download from Site settings → Forms. Do this before the owner
+     cancels the plan, because cancelling loses them.
+  2. `map` lists each Webflow form with its count and a guessed `kind`.
+     Match each kind to a key of `FORMS` in `functions/api/forms.ts`, and
+     set cookie-preference widgets and test forms to `null`.
+  3. `kv` writes the entries in exactly the shape the function stores, with
+     the original date, `"source": "webflow"`, and keys built from
+     Webflow's submission ids.
+  4. Load them with `npx wrangler kv bulk put <file> --namespace-id <FORMS
+     id> --remote`. This bypasses the function, so nobody is emailed,
+     Slacked or added to the CRM for an old entry.
+  5. Check the count per form against the map (`npx wrangler kv key list
+     --prefix <kind>: …`), and read a few with `npm run inbox`.
+  6. Run it again right before the domain switch to catch late
+     submissions. The same keys overwrite, so nothing doubles.
+
+  Every file holds people's details. The script refuses to write inside a
+  git work tree. Delete the files once the counts match, and tell the owner
+  how many came over per form.
 - **Where entries go:** besides KV and email, the function can post to Slack
   (`SLACK_WEBHOOK_URL`) and a CRM (`CRM_WEBHOOK_URL`). Each is a secret,
   used only if set, and can never fail the form. That replaces Zapier zaps

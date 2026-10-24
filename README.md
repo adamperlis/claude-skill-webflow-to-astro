@@ -23,7 +23,9 @@ The skill runs the move in twelve steps, with a script or template for each work
 4. **Rebuild the pages** in parallel, one subagent per page group, measured against live
    rather than eyeballed.
 5. **Forms**: one Pages Function for every form (honeypot, time check, KV storage), email
-   through Cloudflare Email Routing, optional Slack and CRM webhooks.
+   through Cloudflare Email Routing, optional Slack and CRM webhooks. Every past Webflow
+   submission is exported and imported into the same store, with its original date, so the
+   history moves with the site.
 6. **CMS**: export every collection, then Astro content collections, Keystatic or Sanity,
    depending on who edits it.
 7. **Assets**: everything off Webflow's CDN, videos under Pages' 25 MiB cap.
@@ -88,8 +90,9 @@ repo, sends an email or touches DNS.
 Optional:
 
 - **The [Webflow MCP server](https://developers.webflow.com/mcp/reference/overview),** for collections, forms
-  and form submissions. Without it, `scripts/export_cms.py` uses a Webflow API token with
-  `cms:read`, and the rest comes from the dashboard.
+  and form submissions. Without it, `scripts/export_cms.py` and `scripts/forms_to_kv.py` use
+  a Webflow API token with `cms:read` and `forms:read`. With no token at all, form submissions
+  come from each form's CSV download in the dashboard.
 - **A Sanity account,** if the CMS moves to Sanity.
 - **The `gh` CLI,** for recovering past editions of a data feed from git history.
 - **The [`seo-aeo-geo`](https://github.com/adamperlis/claude-skill-seo-aeo-geo) skill,** for
@@ -129,7 +132,7 @@ They send no telemetry.
 | `references/redirects.md` | The five redirect layers and how to test them |
 | `references/domains.md` | Nameserver moves and registrar transfers |
 | `references/dns-and-email.md` | Records, Pages custom domains, Email Routing without breaking mail |
-| `scripts/` | Inventory, unzip, mirror, CMS export, screenshots, measurements, parity, redirects, video compression, Lighthouse |
+| `scripts/` | Inventory, unzip, mirror, CMS export, form-submission export and import, screenshots, measurements, parity, redirects, video compression, Lighthouse |
 | `templates/` | The new repo's starting files: Astro config, Layout, forms, mailer and rebuild Workers, headers, sitemap (`templates/README.md` maps them) |
 
 ## License

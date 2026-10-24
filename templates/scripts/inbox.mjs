@@ -16,6 +16,6 @@ const keys = JSON.parse(wrangler('key', 'list', ...(only ? ['--prefix', `${only}
 if (!keys.length) console.log('No entries yet.');
 for (const key of keys) {
 	const e = JSON.parse(wrangler('key', 'get', key));
-	console.log(`\n${e.at}  ${e.title}  ${e.contact?.name} <${e.contact?.email}>${e.agent ? '  (via an AI agent)' : ''}`);
+	console.log(`\n${e.at}  ${e.title}  ${e.contact?.name} <${e.contact?.email}>${e.agent ? '  (via an AI agent)' : ''}${e.source === 'webflow' ? '  (from Webflow)' : ''}`);
 	for (const [k, v] of Object.entries(e.fields)) if (v !== e.contact?.name && v !== e.contact?.email) console.log(`  ${e.labels[k] ?? k}: ${v}`);
 }

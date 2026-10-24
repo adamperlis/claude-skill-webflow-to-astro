@@ -153,11 +153,14 @@ whose Email Routing is enabled. Check the domain's MX first:
 
 ## Webflow side (the owner's clicks, after the switch is verified)
 
-0. Export the form submissions first: cancelling the plan loses them. The
-   Webflow MCP's `list_site_form_submissions` pages through all of them
-   (100 at a time); without it, each form's CSV download in Site settings →
-   Forms. Keep them as one CSV outside the repo (people's details), skipping
-   the cookie-preference widgets Webflow counts as forms.
+0. Export the form submissions first, because cancelling the plan loses
+   them. Use `scripts/forms_to_kv.py export` (Data API, `forms:read`), or
+   the Webflow MCP's `list_site_form_submissions`. Without either, use each
+   form's CSV download in Site settings → Forms. Then import them into the
+   site's KV store (SKILL.md step 5, "Bring the old entries over"), so the
+   history lives with the new site. Keep the export outside the repo
+   (people's details), skip the cookie-preference widgets Webflow counts as
+   forms, and delete it once the counts match.
 1. Site settings → Publishing → custom domains: remove the apex and www.
 2. Cancel the site plan (Billing). The site stays on the free Starter plan
    at `<slug>.webflow.io`.
