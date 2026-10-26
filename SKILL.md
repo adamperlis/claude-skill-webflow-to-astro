@@ -817,6 +817,13 @@ dropped and why, and the forms, CMS, analytics and DNS details. Their clicks:
     pretends to be you goes to spam instead of the inbox. Your own email
     already passes, so it isn't affected."* If the reports aren't clean
     yet, put the date to look again in `docs/move.md`.
+- **Offer to move the owner's app email** if their apps send sign-up,
+  reset or receipt mail through Resend, MailerSend or similar
+  (`references/transactional-email.md`). It costs $5 a month (Workers
+  Paid, 3,000 emails included) and doesn't suit scheduled newsletters.
+  *"Your apps' email moves to the same Cloudflare account as your site.
+  Each app switches with one setting and can switch back the same way."*
+  Ask; do it only on a yes.
 - **Webflow billing:** plans bill yearly.
   - **Site plans** downgrade at the end of the term.
   - **Unused months of a workspace plan:** ask support, through the chat
@@ -835,4 +842,4 @@ dropped and why, and the forms, CMS, analytics and DNS details. Their clicks:
   configs, `_headers`, `_redirects`, sitemap endpoint, inbox script,
   AGENTS.md, and `studio/scripts/build-import.mjs` (Webflow CMS JSON → Sanity).
 - `references/`: `inventory.md`, `site-types.md`, `page-brief.md`, `cms.md`,
-  `redirects.md`, `domains.md`, `dns-and-email.md`.
+  `redirects.md`, `domains.md`, `dns-and-email.md`, `transactional-email.md`.

@@ -126,6 +126,9 @@ Service → Email Sending → Onboard Domain: MX/SPF/DKIM on `cf-bounce`, and a
 DMARC record: keep the existing one). Send at most once per address (a KV
 key with a TTL) and never echo the visitor's text in it.
 
+The owner's apps (sign-up, password resets, receipts) moving off Resend or
+MailerSend onto the same account: `transactional-email.md`.
+
 ## Email for the forms
 
 Cloudflare Email Routing's `send_email` binding sends free to addresses
