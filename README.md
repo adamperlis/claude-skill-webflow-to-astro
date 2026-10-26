@@ -1,4 +1,4 @@
-# webflow-to-astro — a Claude skill for leaving Webflow
+# webflow-to-astro-cloudflare — a Claude skill for leaving Webflow
 
 A [Claude Code](https://claude.com/claude-code) skill that moves a Webflow site to **Astro +
 Tailwind**, statically built and served by **Cloudflare Pages**, page for page: the same URLs,
