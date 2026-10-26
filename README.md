@@ -132,6 +132,7 @@ They send no telemetry.
 | `references/redirects.md` | The five redirect layers and how to test them |
 | `references/domains.md` | Nameserver moves and registrar transfers |
 | `references/dns-and-email.md` | Records, Pages custom domains, Email Routing without breaking mail |
+| `references/transactional-email.md` | Moving an app's own email off Resend or MailerSend onto Cloudflare Email Sending: cost, DMARC, the token, REST and SMTP, a one-variable switch |
 | `scripts/` | Inventory, unzip, mirror, CMS export, form-submission export and import, screenshots, measurements, parity, redirects, video compression, Lighthouse |
 | `templates/` | The new repo's starting files: Astro config, Layout, forms, mailer and rebuild Workers, headers, sitemap (`templates/README.md` maps them) |
 
